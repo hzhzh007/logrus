@@ -3,6 +3,7 @@ package logrus
 import (
 	"bytes"
 	"fmt"
+	"github.com/rs/xid"
 	"os"
 	"sync"
 	"time"
@@ -30,6 +31,7 @@ type Entry struct {
 
 	// Contains all the fields set by the user.
 	Data Fields
+	Seq  string
 
 	// Time at which the log entry was created
 	Time time.Time
@@ -45,11 +47,17 @@ type Entry struct {
 }
 
 func NewEntry(logger *Logger) *Entry {
-	return &Entry{
+	e := &Entry{
 		Logger: logger,
 		// Default is three fields, give a little extra room
 		Data: make(Fields, 5),
+		Seq:  xid.New().String(),
 	}
+	e.Note("seq", e.Seq)
+	return e
+}
+func (entry *Entry) Flush() {
+	entry.Info("")
 }
 
 // Returns the string representation from the reader and ultimately the
@@ -61,6 +69,10 @@ func (entry *Entry) String() (string, error) {
 	}
 	str := string(serialized)
 	return str, nil
+}
+
+func (entry *Entry) Note(key string, value interface{}) {
+	entry.Data[key] = value
 }
 
 // Add an error as single field (using the key defined in ErrorKey) to the Entry.

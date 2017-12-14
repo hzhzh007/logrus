@@ -97,7 +97,7 @@ func (f *TextFormatter) Format(entry *Entry) ([]byte, error) {
 	if timestampFormat == "" {
 		timestampFormat = DefaultTimestampFormat
 	}
-	if isColored {
+	if isColored && false {
 		f.printColored(b, entry, keys, timestampFormat)
 	} else {
 		if !f.DisableTimestamp {
